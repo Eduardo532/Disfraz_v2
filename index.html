@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ponte el personaje · Guía de disfraces</title>
+  <meta name="description" content="28 personajes alt, góticos y punk, ordenados del disfraz más fácil al más difícil, con lo necesario para armar cada uno.">
+  <meta name="theme-color" content="#231c26">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;800;900&family=Instrument+Sans:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <a class="skip" href="#galeria">Saltar a los personajes</a>
+
+  <header class="hero">
+    <h1 class="title" aria-label="Ponte el personaje">
+      <span class="title-line">Ponte</span>
+      <span class="title-line">el personaje</span>
+    </h1>
+    <p class="lede">28 personajes alt, góticos y punk, ordenados del disfraz más fácil al más difícil. Toca uno para ver qué necesitas y marca lo que ya tienes.</p>
+
+    <section class="controls" aria-label="Filtros">
+      <fieldset class="meter" id="meter">
+        <legend>¿Hasta qué dificultad?</legend>
+        <div class="meter-bars" role="radiogroup" aria-label="Dificultad máxima"></div>
+        <p class="meter-hint" id="meter-hint" aria-live="polite"></p>
+      </fieldset>
+
+      <div class="row">
+        <label class="search">
+          <span class="visually-hidden">Buscar personaje u obra</span>
+          <input id="q" type="search" placeholder="Buscar personaje u obra" autocomplete="off">
+        </label>
+        <button class="btn btn-random" id="random" type="button">Elegir uno al azar</button>
+      </div>
+
+      <div class="chips" id="chips" role="group" aria-label="Filtrar por origen"></div>
+    </section>
+  </header>
+
+  <main id="galeria" tabindex="-1">
+    <p class="count" id="count" aria-live="polite"></p>
+    <div id="levels"></div>
+    <div class="empty" id="empty" hidden>
+      <p>Ningún personaje coincide con esos filtros.</p>
+      <button class="btn" id="reset" type="button">Quitar filtros</button>
+    </div>
+  </main>
+
+  <dialog class="sheet" id="sheet" aria-labelledby="sheet-name">
+    <div class="sheet-inner">
+      <button class="sheet-close" id="sheet-close" type="button" aria-label="Cerrar ficha">×</button>
+      <figure class="sheet-photo">
+        <div class="photo" id="sheet-photo"></div>
+        <figcaption id="sheet-credit"></figcaption>
+      </figure>
+      <div class="sheet-body">
+        <p class="sheet-work" id="sheet-work"></p>
+        <h2 class="sheet-name" id="sheet-name"></h2>
+        <p class="sheet-alias" id="sheet-alias"></p>
+        <div class="sheet-level" id="sheet-level"></div>
+        <p class="sheet-desc" id="sheet-desc"></p>
+
+        <h3 class="sheet-h">Lo que necesitas</h3>
+        <div class="progress" aria-hidden="true"><span id="progress-bar"></span></div>
+        <p class="progress-text" id="progress-text" aria-live="polite"></p>
+        <ul class="checklist" id="checklist"></ul>
+
+        <aside class="tip">
+          <h3 class="sheet-h">Para que te reconozcan</h3>
+          <p id="sheet-tip"></p>
+        </aside>
+
+        <div class="sheet-actions">
+          <a class="btn" id="sheet-ref" target="_blank" rel="noopener">Ver ficha original</a>
+          <div class="pager">
+            <button class="btn btn-ghost" id="prev" type="button">Anterior</button>
+            <button class="btn btn-ghost" id="next" type="button">Siguiente</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </dialog>
+
+  <footer class="foot">
+    <p>Las imágenes se cargan en vivo desde Fandom y Wikipedia y pertenecen a sus respectivos dueños; cada una enlaza a su página de origen. Tu checklist se guarda solo en este navegador.</p>
+  </footer>
+
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
