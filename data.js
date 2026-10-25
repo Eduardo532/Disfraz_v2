@@ -153,7 +153,7 @@ window.CHARACTERS = [
     maquillaje: "Piel pálida, labios oscuros sutiles, cero sonrisa.",
     accesorios: "Una mano de utilería (Dedos) o un paraguas negro.",
     consejo: "El cuello blanco y las trenzas son lo indispensable.",
-    sources: [{ f: "addamsfamily", t: "Wednesday_Addams" }, { wp: "Wednesday_Addams" }]
+    sources: [{ wp: "Wednesday_Addams" }, { f: "addamsfamily", t: "Wednesday_Addams" }]
   },
   {
     id: "sam-manson", name: "Sam Manson", work: "Danny Phantom", cat: ["Animación"], level: 2,
@@ -237,7 +237,7 @@ window.CHARACTERS = [
     maquillaje: "Natural.",
     accesorios: "Bufanda roja (indispensable), arnés de correas café.",
     consejo: "El arnés es lo más difícil; se vende en sets de cosplay o se arma con correas de cuero sintético.",
-    sources: [{ f: "attackontitan", t: "Mikasa_Ackerman" }, { wp: "Mikasa_Ackerman" }]
+    sources: [{ f: "shingeki-no-kyojin", lang: "es", t: "Mikasa_Ackerman" }, { wp: "Mikasa_Ackerman" }, { f: "attackontitan", t: "Mikasa_Ackerman" }]
   },
   {
     id: "levi", name: "Levi Ackerman", work: "Attack on Titan", cat: ["Anime / manga"], level: 3,
@@ -249,7 +249,7 @@ window.CHARACTERS = [
     maquillaje: "Ojeras sutiles, cejas serias.",
     accesorios: "Pañuelo blanco tipo corbatín al cuello, arnés.",
     consejo: "En pareja con alguien de Mikasa, el uniforme compartido luce mucho más.",
-    sources: [{ f: "attackontitan", t: "Levi_Ackerman" }, { wp: "Levi_Ackerman" }]
+    sources: [{ f: "shingeki-no-kyojin", lang: "es", t: "Levi_Ackerman" }, { f: "attackontitan", t: "Levi_Ackerman" }]
   },
   {
     id: "jiro", name: "Kyoka Jiro", work: "My Hero Academia", cat: ["Anime / manga"], level: 3,

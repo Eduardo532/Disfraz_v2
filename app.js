@@ -61,11 +61,21 @@
   const enc = encodeURIComponent;
   const MW = "format=json&formatversion=2&origin=*";
 
-  // Extrae el nombre del archivo del parámetro de imagen del infobox (soporta <gallery> y <tabber>).
+  // Extrae el nombre del archivo del parámetro de imagen del infobox.
+  // Soporta campos uno por línea o todos en una sola línea, y valores con <gallery> o <tabber>.
   function infoboxFile(text) {
-    const m = text.match(/\|\s*(?:image|imagen|image1|img|picture|photo)\s*=\s*([\s\S]*?)(?=\n\s*\|\s*[\w ]+\s*=|\n\s*\}\})/i);
+    const m = /\|\s*(?:image|imagen|image1|img|picture|photo)\s*=\s*/i.exec(text);
     if (!m) return null;
-    const f = m[1].match(/([^\[\]|=\n<>:]+\.(?:png|jpe?g|gif|webp))/i);
+    const rest = text.slice(m.index + m[0].length, m.index + m[0].length + 2000);
+    const block = rest.match(/^<(gallery|tabber)[^>]*>([\s\S]*?)<\/\1>/i);
+    let v;
+    if (block) {
+      v = block[2];
+    } else {
+      const end = rest.search(/\n\s*\||\|\s*[^\s=|\[\]{}<>][^=|\[\]{}<>\n]*=|\}\}/);
+      v = end >= 0 ? rest.slice(0, end) : rest;
+    }
+    const f = v.match(/([^\[\]|=\n<>:]+\.(?:png|jpe?g|gif|webp))/i);
     return f ? f[1].trim() : null;
   }
 
