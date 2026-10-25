@@ -55,6 +55,18 @@
       <figure class="sheet-photo">
         <div class="photo" id="sheet-photo"></div>
         <figcaption id="sheet-credit"></figcaption>
+        <div class="img-tools">
+          <span class="img-tools-q">¿No es este personaje?</span>
+          <button class="link-btn" id="img-next" type="button">Probar otra imagen</button>
+          <button class="link-btn" id="img-own" type="button">Usar una URL</button>
+          <button class="link-btn" id="img-reset" type="button" hidden>Volver a la automática</button>
+        </div>
+        <form class="img-form" id="img-form" hidden>
+          <label class="visually-hidden" for="img-url">URL de la imagen</label>
+          <input id="img-url" type="url" inputmode="url" placeholder="https://…/imagen.jpg" required>
+          <button class="btn btn-small" type="submit">Guardar</button>
+        </form>
+        <p class="img-msg" id="img-msg" aria-live="polite"></p>
       </figure>
       <div class="sheet-body">
         <p class="sheet-work" id="sheet-work"></p>

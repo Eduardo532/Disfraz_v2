@@ -1,5 +1,6 @@
 // Datos de los personajes. Para fijar una imagen manualmente, agrega `img: "https://..."` a cualquier entrada.
-// `sources`: wikis donde el sitio busca la imagen principal en orden. f = Fandom (subdominio), wp = Wikipedia en inglés.
+// `sources`: páginas del personaje donde el sitio busca su imagen, en orden. f = Fandom (subdominio) + t = título, wp = título en Wikipedia en inglés.
+// Solo páginas del propio personaje: nunca la de la obra, para no mostrar pósters o portadas.
 
 window.LEVELS = {
   1: { name: "Muy fácil", hint: "Sale del clóset con un accesorio clave." },
@@ -37,14 +38,14 @@ window.CHARACTERS = [
   {
     id: "effy", name: "Effy Stonem", work: "Skins", cat: ["Live action"], level: 1,
     key: "Ojos ahumados",
-    ref: "https://skins.fandom.com/wiki/Effy_Stonem",
+    ref: "https://en.wikipedia.org/wiki/Effy_Stonem",
     desc: "Adolescente misteriosa y callada, ícono del estilo indie de fines de los 2000.",
     ropa: "Polera oversize o vestido corto suelto, medias negras, chaqueta de cuero o militar.",
     pelo: "Suelto, con raya al costado y algo despeinado.",
     maquillaje: "Ojos muy ahumados en negro, labios nude.",
     accesorios: "Botas o zapatillas gastadas.",
     consejo: "El smokey eye intenso es lo que la hace reconocible.",
-    sources: [{ f: "skins", t: "Effy_Stonem" }, { wp: "Effy_Stonem" }]
+    sources: [{ wp: "Effy_Stonem" }, { f: "skins", t: "Effy_Stonem" }]
   },
   {
     id: "kat", name: "Kat Hernandez", work: "Euphoria", cat: ["Live action"], level: 1,
@@ -68,7 +69,7 @@ window.CHARACTERS = [
     maquillaje: "Natural.",
     accesorios: "Un bajo eléctrico o su funda colgada al hombro; una uñeta como collar.",
     consejo: "Sin el bajo pasa por ropa normal; la funda del instrumento basta y es más cómoda.",
-    sources: [{ f: "sweet-home-netflix", t: "Yoon_Ji-su" }, { wp: "Sweet_Home_(webtoon)", work: true }]
+    sources: [{ f: "sweet-home-netflix", t: "Yoon_Ji-su" }]
   },
   {
     id: "han-sooyoung", name: "Han Sooyoung", work: "Omniscient Reader's Viewpoint", cat: ["Manhwa"], level: 1,
@@ -80,7 +81,7 @@ window.CHARACTERS = [
     maquillaje: "Lunar marcado bajo el ojo con delineador.",
     accesorios: "Opcional: una libreta o tablet de escritora.",
     consejo: "El bob y el lunar son sus dos rasgos fijos.",
-    sources: [{ f: "omniscient-readers-viewpoint", t: "Han_Sooyoung" }, { wp: "Omniscient_Reader's_Viewpoint", work: true }]
+    sources: [{ f: "omniscient-readers-viewpoint", t: "Han_Sooyoung" }]
   },
   {
     id: "lisbeth", name: "Lisbeth Salander", work: "Millennium", cat: ["Live action"], level: 1,
@@ -92,7 +93,7 @@ window.CHARACTERS = [
     maquillaje: "Delineado negro pesado, piel pálida.",
     accesorios: "Piercings, tatuaje temporal de dragón, mochila negra, notebook.",
     consejo: "El tatuaje temporal de dragón cuesta poco y hace que la reconozcan al instante.",
-    sources: [{ f: "millennium", t: "Lisbeth_Salander" }, { wp: "Lisbeth_Salander" }]
+    sources: [{ wp: "Lisbeth_Salander" }]
   },
   {
     id: "eddie", name: "Eddie Munson", work: "Stranger Things", cat: ["Live action"], level: 1,
@@ -133,14 +134,14 @@ window.CHARACTERS = [
   {
     id: "nancy-downs", name: "Nancy Downs", work: "The Craft (1996)", cat: ["Live action"], level: 2,
     key: "Uniforme y labial negro",
-    ref: "https://en.wikipedia.org/wiki/The_Craft_(film)",
+    ref: "https://villains.fandom.com/wiki/Nancy_Downs",
     desc: "La bruja gótica y rebelde del grupo, ícono del goth noventero.",
     ropa: "Uniforme escolar: falda escocesa, camisa blanca, blazer; medias de red y botas militares.",
     pelo: "Suelto y algo salvaje.",
     maquillaje: "Labial negro o vino, delineado negro difuminado.",
     accesorios: "Varios chokers, crucifijo grande, anillos plateados.",
     consejo: "El contraste entre uniforme escolar y labial negro es la clave del look.",
-    sources: [{ f: "thecraft", t: "Nancy_Downs" }, { wp: "The_Craft_(film)", work: true }]
+    sources: [{ f: "villains", t: "Nancy_Downs" }]
   },
   {
     id: "wednesday", name: "Wednesday Addams", alias: "Merlina", work: "Merlina / Los locos Addams", cat: ["Live action"], level: 2,
@@ -193,14 +194,14 @@ window.CHARACTERS = [
   {
     id: "mavis", name: "Mavis", work: "Hotel Transylvania", cat: ["Animación"], level: 3,
     key: "Medias a rayas",
-    ref: "https://hoteltransylvania.fandom.com/wiki/Mavis",
+    ref: "https://hoteltransylvania.fandom.com/wiki/Mavis_Dracula",
     desc: "La hija vampira de Drácula, curiosa y aventurera.",
     ropa: "Vestido negro corto, medias a rayas negras y rojas o moradas, zapatillas rojas de caña.",
     pelo: "Melena negra en capas con flequillo largo al lado.",
     maquillaje: "Piel pálida, ojos grandes con delineado.",
     accesorios: "Colmillos postizos.",
     consejo: "Las medias a rayas y las zapatillas rojas la distinguen de una vampira cualquiera.",
-    sources: [{ f: "hoteltransylvania", t: "Mavis" }, { wp: "Hotel_Transylvania", work: true }]
+    sources: [{ f: "hoteltransylvania", t: "Mavis_Dracula" }]
   },
   {
     id: "gwen", name: "Gwen", work: "Isla del Drama", cat: ["Animación"], level: 3,
@@ -296,7 +297,7 @@ window.CHARACTERS = [
     maquillaje: "Piel grisácea pálida, gema roja en la frente.",
     accesorios: "Cinturón con discos dorados y gemas rojas, broche en la capa.",
     consejo: "La capa con capucha amplia es lo que más impacta; se cose con dos rectángulos de tela.",
-    sources: [{ f: "teen-titans", t: "Raven" }, { wp: "Raven_(DC_Comics)" }]
+    sources: [{ f: "teentitans", t: "Raven" }, { wp: "Raven_(DC_Comics)" }]
   },
   {
     id: "marceline", name: "Marceline", work: "Hora de Aventura", cat: ["Animación"], level: 4,
@@ -325,14 +326,14 @@ window.CHARACTERS = [
   {
     id: "gogo", name: "GoGo Tomago", work: "Big Hero 6", cat: ["Animación"], level: 5,
     key: "Traje con armadura",
-    ref: "https://disney.fandom.com/wiki/Go_Go_Tomago",
+    ref: "https://en.wikipedia.org/wiki/GoGo_Tomago",
     desc: "Genio de la ingeniería, veloz, de pocas palabras y mucha actitud.",
     ropa: "Casual: chaqueta de cuero negra, polera oscura, jeans. Completa: traje ajustado amarillo con placas oscuras y casco.",
     pelo: "Corto negro con un mechón morado.",
     maquillaje: "Delineado marcado.",
     accesorios: "Discos magnéticos en muñecas y espalda, chicle para inflar globos.",
     consejo: "La versión casual baja este personaje al nivel 2; el traje con armadura requiere goma eva y pintura.",
-    sources: [{ f: "disney", t: "Go_Go_Tomago" }, { wp: "Big_Hero_6_(film)", work: true }]
+    sources: [{ f: "marvel-movies", t: "GoGo_Tomago" }, { wp: "GoGo_Tomago" }]
   },
   {
     id: "ryuko", name: "Ryuko Matoi", work: "Kill la Kill", cat: ["Anime / manga"], level: 5,
@@ -344,6 +345,6 @@ window.CHARACTERS = [
     maquillaje: "Cejas fuertes, delineado intenso.",
     accesorios: "Tijera Escarlata (media tijera roja enorme de utilería), guante rojo.",
     consejo: "La tijera es un proyecto en sí: goma eva sobre base de PVC. Revisa las reglas del evento sobre utilería grande.",
-    sources: [{ f: "killlakill", t: "Ryuko_Matoi" }, { wp: "Ryuko_Matoi" }]
+    sources: [{ wp: "Ryuko_Matoi" }, { f: "killlakill", t: "Ryuko_Matoi" }]
   }
 ];

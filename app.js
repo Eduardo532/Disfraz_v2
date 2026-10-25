@@ -9,7 +9,7 @@
     ["maquillaje", "Maquillaje"],
     ["accesorios", "Accesorios"]
   ];
-  const CACHE_VERSION = "v1";
+  const CACHE_VERSION = "v2";
 
   const $ = (s, el = document) => el.querySelector(s);
   const el = (tag, cls, text) => {
@@ -38,11 +38,18 @@
   const doneCount = id => PARTS.filter(([k]) => progress[id]?.[k]).length;
 
   // ---------- Imágenes desde la web ----------
-  // Busca la imagen principal de la página del personaje en Fandom o Wikipedia (API de MediaWiki con CORS abierto).
-  const imageCache = store.get("img-" + CACHE_VERSION) || {};
-  const pending = new Map();
+  // Para cada personaje se arma una lista de candidatas, en orden de confianza:
+  //   1. la imagen del recuadro de ficha (infobox) de su página en Fandom,
+  //   2. la imagen principal que Fandom asigna a esa página,
+  //   3. la imagen del recuadro de su artículo en Wikipedia.
+  // Quien visita puede pasar a la siguiente candidata o fijar una URL propia; esa elección se guarda en su navegador.
+  const IMG_KEY = "img-" + CACHE_VERSION;
+  const CHOICE_KEY = "img-choice-" + CACHE_VERSION;
+  const imageCache = store.get(IMG_KEY) || {};      // "id:n" -> candidata ya resuelta
+  const choices = store.get(CHOICE_KEY) || {};      // id -> { n } | { url }
+  const cands = new Map();                           // id -> { list, steps }
 
-  function fetchJSON(url, ms = 6000) {
+  function fetchJSON(url, ms = 7000) {
     const ctrl = new AbortController();
     const t = setTimeout(() => ctrl.abort(), ms);
     return fetch(url, { signal: ctrl.signal })
@@ -51,56 +58,66 @@
       .finally(() => clearTimeout(t));
   }
 
-  function firstThumb(data) {
-    const pages = data?.query?.pages;
-    if (!pages) return null;
-    for (const p of Object.values(pages)) {
-      if (p?.thumbnail?.source) return p.thumbnail.source;
-    }
-    return null;
+  const enc = encodeURIComponent;
+  const MW = "format=json&formatversion=2&origin=*";
+
+  // Extrae el nombre del archivo del parámetro de imagen del infobox (soporta <gallery> y <tabber>).
+  function infoboxFile(text) {
+    const m = text.match(/\|\s*(?:image|imagen|image1|img|picture|photo)\s*=\s*([\s\S]*?)(?=\n\s*\|\s*[\w ]+\s*=|\n\s*\}\})/i);
+    if (!m) return null;
+    const f = m[1].match(/([^\[\]|=\n<>:]+\.(?:png|jpe?g|gif|webp))/i);
+    return f ? f[1].trim() : null;
   }
 
-  async function lookup(src) {
-    const params = "action=query&prop=pageimages&piprop=thumbnail&pithumbsize=640&redirects=1&format=json&origin=*";
-    if (src.f) {
-      const base = `https://${src.f}.fandom.com/api.php`;
-      const t = encodeURIComponent(src.t);
-      let url = firstThumb(await fetchJSON(`${base}?${params}&titles=${t}`));
-      if (!url) {
-        const d = await fetchJSON(`${base}?action=imageserving&wisTitle=${t}&format=json&origin=*`);
-        url = d?.image?.imageserving || null;
-      }
-      if (url) return { src: url, label: "Fandom", page: `https://${src.f}.fandom.com/wiki/${src.t}` };
-    }
-    if (src.wp) {
-      const t = encodeURIComponent(src.wp);
-      const url = firstThumb(await fetchJSON(`https://en.wikipedia.org/w/api.php?${params}&pilicense=any&titles=${t}`));
-      if (url) {
-        return {
-          src: url,
-          label: src.work ? "Wikipedia (imagen de la obra)" : "Wikipedia",
-          page: `https://en.wikipedia.org/wiki/${src.wp}`
-        };
-      }
-    }
-    return null;
+  async function fandomInfobox(src) {
+    const base = `https://${src.f}.fandom.com/api.php`;
+    const d = await fetchJSON(`${base}?action=query&prop=revisions&rvprop=content&rvslots=main&redirects=1&titles=${enc(src.t)}&${MW}`);
+    const text = d?.query?.pages?.[0]?.revisions?.[0]?.slots?.main?.content;
+    const file = text && infoboxFile(text);
+    if (!file) return null;
+    const info = await fetchJSON(`${base}?action=query&prop=imageinfo&iiprop=url&iiurlwidth=640&titles=${enc("File:" + file)}&${MW}`);
+    const ii = info?.query?.pages?.[0]?.imageinfo?.[0];
+    const url = ii?.thumburl || ii?.url;
+    return url ? { src: url, label: "Fandom", page: `https://${src.f}.fandom.com/wiki/${src.t}` } : null;
   }
 
-  // Devuelve la primera imagen disponible a partir de la fuente `from`.
-  async function resolveImage(c, from = 0) {
-    if (c.img && from === 0) return { src: c.img, label: "Imagen fijada", page: c.ref, idx: -1 };
-    const cached = imageCache[c.id];
-    if (cached && from === 0) return cached;
-    for (let i = Math.max(0, from); i < c.sources.length; i++) {
-      const hit = await lookup(c.sources[i]);
-      if (hit) {
-        hit.idx = i;
-        if (from === 0) { imageCache[c.id] = hit; store.set("img-" + CACHE_VERSION, imageCache); }
-        return hit;
+  async function pageImage(apiBase, title, extra, label, page) {
+    const d = await fetchJSON(`${apiBase}?action=query&prop=pageimages&piprop=thumbnail&pithumbsize=640&redirects=1&titles=${enc(title)}${extra}&${MW}`);
+    const url = d?.query?.pages?.find?.(p => p?.thumbnail?.source)?.thumbnail?.source;
+    return url ? { src: url, label, page } : null;
+  }
+
+  function stepsFor(c) {
+    const steps = [];
+    for (const s of c.sources) {
+      if (s.f) {
+        const page = `https://${s.f}.fandom.com/wiki/${s.t}`;
+        steps.push(() => fandomInfobox(s));
+        steps.push(() => pageImage(`https://${s.f}.fandom.com/api.php`, s.t, "", "Fandom", page));
+      }
+      if (s.wp) {
+        steps.push(() => pageImage("https://en.wikipedia.org/w/api.php", s.wp, "&pilicense=any", "Wikipedia", `https://en.wikipedia.org/wiki/${s.wp}`));
       }
     }
-    return null;
+    return steps;
   }
+
+  // Devuelve la candidata n (0 = la mejor) o null si no hay tantas.
+  async function candidateAt(c, n) {
+    const key = c.id + ":" + n;
+    if (imageCache[key]) return imageCache[key];
+    let entry = cands.get(c.id);
+    if (!entry) { entry = { list: [], steps: stepsFor(c) }; cands.set(c.id, entry); }
+    while (entry.list.length <= n && entry.steps.length) {
+      const hit = await entry.steps.shift()();
+      if (hit && !entry.list.some(x => x.src === hit.src)) entry.list.push(hit);
+    }
+    const hit = entry.list[n] || null;
+    if (hit) { imageCache[key] = hit; store.set(IMG_KEY, imageCache); }
+    return hit;
+  }
+
+  function chosenIndex(c) { return choices[c.id]?.n || 0; }
 
   // Cola con concurrencia limitada para no saturar las APIs.
   const queue = [];
@@ -126,17 +143,31 @@
     box.append(ph);
   }
 
-  // Pinta la foto en `box` y opcionalmente el crédito en `credit`.
-  function paintPhoto(box, c, credit, from = 0) {
+  function setCredit(credit, label, page) {
+    if (!credit) return;
+    credit.textContent = "Imagen: ";
+    if (page) {
+      const a = el("a", null, label);
+      a.href = page; a.target = "_blank"; a.rel = "noopener";
+      credit.append(a);
+    } else {
+      credit.append(document.createTextNode(label));
+    }
+  }
+
+  // Pinta la foto en `box`. `n` fuerza una candidata; si no, usa la elección guardada.
+  // onShown(n) avisa qué candidata quedó visible (null si es URL propia o no hubo imagen).
+  function paintPhoto(box, c, credit, n, onShown) {
+    const token = Symbol();
+    box._token = token;
     box.classList.add("loading");
-    const key = c.id + ":" + from;
-    let p = pending.get(key);
-    if (!p) { p = enqueue(() => resolveImage(c, from)); pending.set(key, p); }
-    p.then(hit => {
-      pending.delete(key);
+
+    const show = (hit, idx) => {
+      if (box._token !== token) return;
       if (!hit) {
         placeholder(box, c);
-        if (credit) credit.textContent = "No se encontró imagen. Revisa la ficha original.";
+        if (credit) credit.textContent = "No se encontró imagen para este personaje.";
+        onShown?.(null, false);
         return;
       }
       box.querySelector(".ph")?.remove();
@@ -146,21 +177,34 @@
       img.alt = `${c.name} en ${c.work}`;
       img.referrerPolicy = "no-referrer";
       img.decoding = "async";
-      img.onload = () => { img.classList.add("ready"); box.classList.remove("loading"); };
+      img.onload = () => {
+        if (box._token !== token) return;
+        img.classList.add("ready");
+        box.classList.remove("loading");
+        setCredit(credit, hit.label, hit.page);
+        onShown?.(idx, true);
+      };
       img.onerror = () => {
-        if (hit.idx >= 0 && hit.idx + 1 < c.sources.length) {
-          if (from === 0) { delete imageCache[c.id]; store.set("img-" + CACHE_VERSION, imageCache); }
-          paintPhoto(box, c, credit, hit.idx + 1);
-        } else {
-          placeholder(box, c);
-        }
+        if (box._token !== token) return;
+        if (idx == null) { show(null); return; }
+        delete imageCache[c.id + ":" + idx];
+        enqueue(() => candidateAt(c, idx + 1)).then(next => show(next, idx + 1));
       };
       img.src = hit.src;
-      if (credit) {
-        credit.textContent = "Imagen: ";
-        const a = el("a", null, hit.label);
-        a.href = hit.page; a.target = "_blank"; a.rel = "noopener";
-        credit.append(a);
+    };
+
+    const own = choices[c.id]?.url || (n == null && c.img);
+    if (own && n == null) {
+      show({ src: own, label: choices[c.id]?.url ? "URL elegida por ti" : "Imagen fijada", page: choices[c.id]?.url ? own : c.ref }, null);
+      return;
+    }
+    const idx = n ?? chosenIndex(c);
+    enqueue(() => candidateAt(c, idx)).then(hit => {
+      if (!hit && idx > 0) {
+        // la elección guardada ya no existe: vuelve a la primera
+        enqueue(() => candidateAt(c, 0)).then(h => show(h, 0));
+      } else {
+        show(hit, idx);
       }
     });
   }
@@ -316,11 +360,9 @@
     $("#sheet-tip").textContent = c.consejo;
     $("#sheet-ref").href = c.ref;
 
-    const box = $("#sheet-photo");
-    box.replaceChildren();
-    const credit = $("#sheet-credit");
-    credit.textContent = "";
-    paintPhoto(box, c, credit);
+    $("#img-form").hidden = true;
+    $("#img-msg").textContent = "";
+    paintSheetPhoto();
 
     const list = $("#checklist");
     list.replaceChildren();
@@ -351,6 +393,66 @@
     }
     sheet.scrollTop = 0;
   }
+
+  // ---------- Corrección de imagen en la ficha ----------
+  let shownIdx = null;
+
+  function paintSheetPhoto(n) {
+    const box = $("#sheet-photo");
+    const credit = $("#sheet-credit");
+    box.replaceChildren();
+    credit.textContent = "";
+    shownIdx = null;
+    paintPhoto(box, current, credit, n, idx => { shownIdx = idx; });
+    $("#img-reset").hidden = !choices[current.id];
+  }
+
+  function saveChoices() { store.set(CHOICE_KEY, choices); }
+
+  $("#img-next").addEventListener("click", async () => {
+    const c = current;
+    const msg = $("#img-msg");
+    const from = shownIdx ?? (choices[c.id]?.url ? -1 : chosenIndex(c));
+    msg.textContent = "Buscando otra imagen…";
+    const next = await enqueue(() => candidateAt(c, from + 1));
+    if (c !== current) return;
+    if (next) {
+      choices[c.id] = { n: from + 1 };
+      msg.textContent = "";
+    } else {
+      delete choices[c.id];
+      msg.textContent = "No hay más imágenes en las wikis. Volviste a la primera; puedes pegar una URL propia.";
+    }
+    saveChoices();
+    paintSheetPhoto(next ? from + 1 : 0);
+  });
+
+  $("#img-own").addEventListener("click", () => {
+    const f = $("#img-form");
+    f.hidden = !f.hidden;
+    if (!f.hidden) { $("#img-url").value = choices[current.id]?.url || ""; $("#img-url").focus(); }
+  });
+
+  $("#img-form").addEventListener("submit", e => {
+    e.preventDefault();
+    const url = $("#img-url").value.trim();
+    if (!/^https?:\/\//i.test(url)) {
+      $("#img-msg").textContent = "La URL debe empezar con http:// o https://";
+      return;
+    }
+    choices[current.id] = { url };
+    saveChoices();
+    $("#img-form").hidden = true;
+    $("#img-msg").textContent = "Imagen guardada en este navegador.";
+    paintSheetPhoto();
+  });
+
+  $("#img-reset").addEventListener("click", () => {
+    delete choices[current.id];
+    saveChoices();
+    $("#img-msg").textContent = "Volviste a la imagen automática.";
+    paintSheetPhoto();
+  });
 
   function syncProgress() {
     const d = doneCount(current.id);

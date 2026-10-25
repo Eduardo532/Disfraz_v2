@@ -555,3 +555,44 @@ main {
   *, *::before, *::after { animation: none !important; transition: none !important; }
   .card { transform: none; }
 }
+
+/* ---------- Corregir imagen ---------- */
+.img-tools {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 12px;
+  margin-top: 10px;
+  font-size: .85rem;
+}
+.img-tools-q { color: var(--ink-soft); }
+.link-btn {
+  appearance: none;
+  border: 0;
+  background: none;
+  padding: 2px 0;
+  font: inherit;
+  font-weight: 600;
+  color: var(--poppy-ink);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+.link-btn[hidden] { display: none; }
+.img-form { display: flex; gap: 8px; margin-top: 10px; }
+.img-form[hidden] { display: none; }
+.img-form input {
+  flex: 1;
+  min-width: 0;
+  font: inherit;
+  font-size: .9rem;
+  padding: 8px 10px;
+  border: 2px solid var(--ink);
+  border-radius: 2px;
+  background: #fff;
+  color: var(--ink);
+}
+.btn-small { padding: 7px 12px; font-size: .9rem; border-color: var(--ink); color: var(--ink); }
+.btn-small:hover { background: var(--ink); color: var(--paper); }
+.img-msg { font-size: .82rem; color: var(--ink-soft); margin: 6px 0 0; min-height: 1em; }
+.img-msg:empty { display: none; }

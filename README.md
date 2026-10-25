@@ -13,9 +13,15 @@ Guía interactiva de disfraces: 28 personajes alt, góticos y punk de cómic, an
 
 ## Imágenes
 
-El repositorio no incluye imágenes. Cada vez que alguien abre el sitio, este pide la imagen principal de la página del personaje a la API pública de [Fandom](https://www.fandom.com) o de [Wikipedia](https://en.wikipedia.org) y la muestra enlazada a su origen. Las imágenes pertenecen a sus respectivos dueños.
+El repositorio no incluye imágenes. Al abrir el sitio, cada personaje pide su imagen a las APIs públicas de [Fandom](https://www.fandom.com) y [Wikipedia](https://en.wikipedia.org), en este orden:
 
-Si un personaje no muestra imagen, puedes fijar una a mano en `data.js` agregando el campo `img`:
+1. La imagen del recuadro de ficha (infobox) de su página en Fandom.
+2. La imagen principal que Fandom asigna a esa página.
+3. La imagen del recuadro de su artículo en Wikipedia.
+
+Solo se consultan páginas del propio personaje, nunca la de la obra, para no mostrar pósters ni portadas. Cada imagen enlaza a su origen y pertenece a sus respectivos dueños.
+
+Si una imagen no corresponde, en la ficha del personaje puedes tocar **Probar otra imagen** o **Usar una URL**. Esa elección se guarda en tu navegador. Para fijarla para todos los visitantes, agrega el campo `img` en `data.js`:
 
 ```js
 { id: "mai", name: "Mai", img: "https://ejemplo.com/mai.jpg", ... }
