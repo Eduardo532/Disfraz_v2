@@ -1,5 +1,5 @@
 // Datos de los personajes. Para fijar una imagen manualmente, agrega `img: "https://..."` a cualquier entrada.
-// `sources`: páginas del personaje donde el sitio busca su imagen, en orden. f = Fandom (subdominio) + t = título, wp = título en Wikipedia en inglés.
+// `sources`: páginas del personaje donde el sitio busca su imagen, en orden. f = Fandom (subdominio) + t = título (+ lang para wikis en otro idioma, p. ej. "es"), wp = título en Wikipedia en inglés.
 // Solo páginas del propio personaje: nunca la de la obra, para no mostrar pósters o portadas.
 
 window.LEVELS = {
@@ -338,13 +338,13 @@ window.CHARACTERS = [
   {
     id: "ryuko", name: "Ryuko Matoi", work: "Kill la Kill", cat: ["Anime / manga"], level: 5,
     key: "Tijera Escarlata",
-    ref: "https://killlakill.fandom.com/wiki/Ryuko_Matoi",
+    ref: "https://kill-la-kill.fandom.com/es/wiki/Ryuko_Matoi",
     desc: "Estudiante rebelde que busca al asesino de su padre con media tijera gigante.",
     ropa: "Senketsu en forma de uniforme: blusa marinera negra corta con detalles rojos, falda negra, tirantes rojos.",
     pelo: "Negro corto en capas con un mechón rojo en el flequillo.",
     maquillaje: "Cejas fuertes, delineado intenso.",
     accesorios: "Tijera Escarlata (media tijera roja enorme de utilería), guante rojo.",
     consejo: "La tijera es un proyecto en sí: goma eva sobre base de PVC. Revisa las reglas del evento sobre utilería grande.",
-    sources: [{ wp: "Ryuko_Matoi" }, { f: "killlakill", t: "Ryuko_Matoi" }]
+    sources: [{ f: "kill-la-kill", lang: "es", t: "Ryuko_Matoi" }, { wp: "Ryuko_Matoi" }]
   }
 ];

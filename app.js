@@ -69,8 +69,12 @@
     return f ? f[1].trim() : null;
   }
 
+  // Wikis de Fandom en otro idioma viven bajo /<lang>/ (p. ej. kill-la-kill.fandom.com/es/).
+  const fandomRoot = s => `https://${s.f}.fandom.com${s.lang ? "/" + s.lang : ""}`;
+  const fandomPage = s => `${fandomRoot(s)}/wiki/${s.t}`;
+
   async function fandomInfobox(src) {
-    const base = `https://${src.f}.fandom.com/api.php`;
+    const base = `${fandomRoot(src)}/api.php`;
     const d = await fetchJSON(`${base}?action=query&prop=revisions&rvprop=content&rvslots=main&redirects=1&titles=${enc(src.t)}&${MW}`);
     const text = d?.query?.pages?.[0]?.revisions?.[0]?.slots?.main?.content;
     const file = text && infoboxFile(text);
@@ -78,7 +82,7 @@
     const info = await fetchJSON(`${base}?action=query&prop=imageinfo&iiprop=url&iiurlwidth=640&titles=${enc("File:" + file)}&${MW}`);
     const ii = info?.query?.pages?.[0]?.imageinfo?.[0];
     const url = ii?.thumburl || ii?.url;
-    return url ? { src: url, label: "Fandom", page: `https://${src.f}.fandom.com/wiki/${src.t}` } : null;
+    return url ? { src: url, label: "Fandom", page: fandomPage(src) } : null;
   }
 
   async function pageImage(apiBase, title, extra, label, page) {
@@ -91,9 +95,8 @@
     const steps = [];
     for (const s of c.sources) {
       if (s.f) {
-        const page = `https://${s.f}.fandom.com/wiki/${s.t}`;
         steps.push(() => fandomInfobox(s));
-        steps.push(() => pageImage(`https://${s.f}.fandom.com/api.php`, s.t, "", "Fandom", page));
+        steps.push(() => pageImage(`${fandomRoot(s)}/api.php`, s.t, "", "Fandom", fandomPage(s)));
       }
       if (s.wp) {
         steps.push(() => pageImage("https://en.wikipedia.org/w/api.php", s.wp, "&pilicense=any", "Wikipedia", `https://en.wikipedia.org/wiki/${s.wp}`));
